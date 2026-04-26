@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 scraper = "0.26.0"
+csv = "1.4.0"
+clap = "4.6.1"
