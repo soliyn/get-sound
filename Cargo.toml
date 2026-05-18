@@ -1,9 +1,11 @@
 [package]
-name = "get-sound"
+name = "cdsd"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 scraper = "0.26.0"
 csv = "1.4.0"
-clap = "4.6.1"
+clap = { version = "4.6.1", features = ["derive"] }
+reqwest = { version = "0.13.3", features = ["blocking"] }
+mockito = { version = "1.7.2" }

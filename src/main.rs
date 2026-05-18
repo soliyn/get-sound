@@ -1,6 +1,8 @@
-mod html_parser;
-mod csv_helper;
+use cdsd::cli::Args;
+use cdsd::run;
+use clap::Parser;
 
 fn main() {
-    println!("Hello, world!");
+    let args = Args::parse();
+    run(&args);
 }
