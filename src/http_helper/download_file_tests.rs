@@ -15,7 +15,8 @@ fn should_return_ok_result() {
 
     let mut dest = Vec::<u8>::new();
 
-    let result = download_file(&format!("{}{}", &server.url(), url), &mut dest);
+    let helper = HttpHelper::new();
+    let result = helper.download_file(&format!("{}{}", &server.url(), url), &mut dest);
 
     assert!(result.is_ok());
     assert_eq!(dest, expected);

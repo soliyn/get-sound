@@ -1,5 +1,4 @@
 ﻿use std::io::Read;
-use csv;
 use csv::ReaderBuilder;
 
 pub fn get_words<T: Read>(r: T, column_index: usize) -> Vec<String> {

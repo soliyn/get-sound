@@ -6,10 +6,10 @@ pub fn parse_word_html(html: &str) -> Option<WordInfo> {
     let document = Html::parse_document(html);
 
     let word_entry_selector = Selector::parse("div.pos-header.dpos-h").unwrap();
-    let word_entry = document.select(&word_entry_selector).nth(0)?;
+    let word_entry = document.select(&word_entry_selector).next()?;
 
     let word_selector = Selector::parse("span.hw.dhw").unwrap();
-    let word = word_entry.select(&word_selector).nth(0)?;
+    let word = word_entry.select(&word_selector).next()?;
 
     let pronunciation_selector = Selector::parse("span.dpron-i").unwrap();
     let pronunciations = word_entry.select(&pronunciation_selector);
@@ -46,12 +46,11 @@ fn parse_region(pronunciation_html: &ElementRef) -> Option<PronunciationRegion> 
         .select(&region_sel)
         .next()
         .map(|el| el.text().collect::<String>().trim().to_lowercase())
-        .map(|text| match text.as_str() {
+        .and_then(|text| match text.as_str() {
             "us" => Some(PronunciationRegion::Us),
             "uk" => Some(PronunciationRegion::Uk),
             _ => None,
         })
-        .flatten()
 }
 
 fn parse_ipa_transcription(pronunciation_html: &ElementRef) -> Option<String> {

@@ -1,9 +1,9 @@
-﻿use crate::http_helper;
+﻿use crate::http_helper::{Downloader, HttpHelper};
+use anyhow::Result;
 use clap::ValueEnum;
 use html_parser::parse_word_html;
-use std::error::Error;
-use std::fmt;
 use std::fmt::Formatter;
+use std::fmt::{self, Display};
 
 mod html_parser;
 
@@ -13,10 +13,20 @@ pub struct WordInfo {
     pub pronunciations: Vec<WordPronunciation>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum PronunciationRegion {
     Uk,
     Us,
+}
+
+impl Display for PronunciationRegion {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let str_val = match self {
+            PronunciationRegion::Uk => "uk",
+            PronunciationRegion::Us => "us",
+        };
+        write!(f, "{}", str_val)
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -56,27 +66,32 @@ impl fmt::Display for Language {
 
 pub struct CambridgeDictionary {
     base_url: String,
+    http_helper: HttpHelper,
 }
 
 impl CambridgeDictionary {
-    pub fn new() -> Self {
+    pub fn new(base_url: String) -> Self {
         Self {
-            base_url: "https://dictionary.cambridge.org".to_string(), // /{language}/{word}
+            base_url,
+            http_helper: HttpHelper::new(),
         }
     }
-    pub fn get_word(
-        &self,
-        language: Language,
-        word: &str,
-    ) -> Result<Option<WordInfo>, Box<dyn Error>> {
-        let word_html = http_helper::download_html(&format!(
-            "{}/dictionary/{}/{}",
+}
+
+#[cfg_attr(test, mockall::automock)]
+pub trait Dictionary {
+    fn get_word(&self, language: Language, word: &str) -> Result<Option<WordInfo>>;
+}
+
+impl Dictionary for CambridgeDictionary {
+    fn get_word(&self, language: Language, word: &str) -> Result<Option<WordInfo>> {
+        let word_html = self.http_helper.download_html(&format!(
+            "{}/dictionary/{}/{}", // /{language}/{word}
             self.base_url, language, word
         ))?;
 
         Ok(parse_word_html(&word_html).map(|wi| wi.add_base_url_to_audios(&self.base_url)))
     }
-
 }
 
 #[cfg(test)]
@@ -85,7 +100,8 @@ mod tests {
 
     #[test]
     fn add_base_url_to_audios_should_add_base_url_prefix() {
-        let cd = CambridgeDictionary::new();
+        const DEFAULT_BASE_URL: &str = "https://dictionary.cambridge.org";
+        let cd = CambridgeDictionary::new(DEFAULT_BASE_URL.to_string());
         const AUDIO_URL: &str = "/media/english/uk_pron/u/uks/uksta/ukstarg004.mp3";
         let mut wi = Some(WordInfo {
             word: "word".to_string(),
