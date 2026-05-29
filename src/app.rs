@@ -51,19 +51,29 @@ impl App {
         Ok(())
     }
 
-    fn run_internal(
-        mut params: RunInternalParams<
-            impl Read,
-            impl Write,
-            impl Dictionary,
-            impl Downloader,
-            impl AsRef<Path>,
-        >,
-    ) {
+    fn run_internal<R, RW, D, DL, P>(mut params: RunInternalParams<R, RW, D, DL, P>)
+    where
+        R: Read,
+        RW: Read + Write,
+        D: Dictionary,
+        DL: Downloader,
+        P: AsRef<Path>,
+    {
+        // fn run_internal(
+        //     mut params: RunInternalParams<
+        //         impl Read,
+        //         impl Read + Write,
+        //         impl Dictionary,
+        //         impl Downloader,
+        //         impl AsRef<Path>,
+        //     >,
+        // ) {
+        let processed_words = get_words(&mut params.output_file, 0);
         let words = get_words(params.input_file, params.word_column_index);
+        let words = words.into_iter().filter(|w| !processed_words.contains(w));
 
         for word in words {
-            print!("getting \"{}\"", &word);
+            print!("getting \"{}\"", word);
             let result = params.dict.get_word(params.language, &word);
             match result {
                 Ok(Some(wi)) => {
@@ -77,29 +87,29 @@ impl App {
                         Ok(_) => print!(" OK"),
                         Err(err) => {
                             print!(" ERROR: {}", err);
-                            eprintln!("Could not process word '{}'", &word);
+                            eprintln!("Could not process word '{}'", word);
                         }
                     }
                 }
-                Ok(None) => eprintln!("Could not parse '{}'", &word),
-                Err(err) => eprintln!("Error getting '{}': {}", &word, err),
+                Ok(None) => eprintln!("Could not parse '{}'", word),
+                Err(err) => eprintln!("Error getting '{}': {}", word, err),
             }
             println!();
         }
     }
 }
 
-struct RunInternalParams<R, W, D, DL, P>
+struct RunInternalParams<R, RW, D, DL, P>
 where
     R: Read,
-    W: Write,
+    RW: Read + Write,
     D: Dictionary,
     DL: Downloader,
     P: AsRef<Path>,
 {
     input_file: R,
     word_column_index: usize,
-    output_file: W,
+    output_file: RW,
     dict: D,
     language: Language,
     http_helper: DL,

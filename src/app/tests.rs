@@ -29,3 +29,42 @@ fn create_mockito_mpeg_end_point(server: &mut ServerGuard, url: &str, expected: 
         .with_body(expected)
         .create();
 }
+
+fn create_mockito_fixture_end_points(server: &mut ServerGuard) {
+    let expected = vec![0x00_u8, 0xFF, 0x1A, 0x2B];
+    create_mockito_html_end_point(server, "apple");
+    create_mockito_mpeg_end_point(
+        server,
+        "/media/english/uk_pron/u/uka/ukapp/ukappen014.mp3",
+        &expected,
+    );
+    create_mockito_mpeg_end_point(
+        server,
+        "/media/english/us_pron/a/app/apple/apple.mp3",
+        &expected,
+    );
+
+    create_mockito_html_end_point(server, "orange");
+    create_mockito_mpeg_end_point(
+        server,
+        "/media/english/uk_pron/u/uko/ukora/ukorang001.mp3",
+        &expected,
+    );
+    create_mockito_mpeg_end_point(
+        server,
+        "/media/english/us_pron/e/eus/eus75/eus75268.mp3",
+        &expected,
+    );
+    create_mockito_html_end_point(server, "banana");
+    create_mockito_mpeg_end_point(
+        server,
+        "/media/english/uk_pron/u/ukb/ukbal/ukballs018.mp3",
+        &expected,
+    );
+    create_mockito_mpeg_end_point(
+        server,
+        "/media/english/us_pron/b/ban/banan/banana.mp3",
+        &expected,
+    );
+
+}
