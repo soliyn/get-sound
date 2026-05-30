@@ -11,7 +11,6 @@ reqwest = { version = "0.13.4", features = ["blocking"] }
 log = "0.4.30"
 simplelog = "0.12.2"
 thiserror = "2.0.18"
-bon = "3.9.1"
 anyhow = "1.0.102"
 
 [dev-dependencies]

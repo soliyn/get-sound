@@ -8,7 +8,7 @@ use std::{
 use anyhow::{self, Error, Result};
 
 use crate::Language;
-use crate::cambridge_dictionary::{Dictionary, WordPronunciation};
+use crate::cambridge_dictionary::Dictionary;
 use crate::{
     cambridge_dictionary::{CambridgeDictionary, PronunciationRegion, WordInfo},
     cli::Args,
@@ -51,23 +51,15 @@ impl App {
         Ok(())
     }
 
-    fn run_internal<R, RW, D, DL, P>(mut params: RunInternalParams<R, RW, D, DL, P>)
-    where
-        R: Read,
-        RW: Read + Write,
-        D: Dictionary,
-        DL: Downloader,
-        P: AsRef<Path>,
-    {
-        // fn run_internal(
-        //     mut params: RunInternalParams<
-        //         impl Read,
-        //         impl Read + Write,
-        //         impl Dictionary,
-        //         impl Downloader,
-        //         impl AsRef<Path>,
-        //     >,
-        // ) {
+    fn run_internal(
+        mut params: RunInternalParams<
+            impl Read,
+            impl Read + Write,
+            impl Dictionary,
+            impl Downloader,
+            impl AsRef<Path>,
+        >,
+    ) {
         let processed_words = get_words(&mut params.output_file, 0);
         let words = get_words(params.input_file, params.word_column_index);
         let words = words.into_iter().filter(|w| !processed_words.contains(w));
@@ -129,13 +121,9 @@ where
     W: Write,
     P: AsRef<Path>,
 {
-    let op = wi
-        .pronunciations
-        .iter()
-        .find(|x| x.region == *preferred_pronunciation)
-        .or_else(|| wi.pronunciations.first());
+    let po = wi.get_preferred_pronunciation_or_first(preferred_pronunciation);
 
-    let Some(p) = op else {
+    let Some(p) = po else {
         writeln!(output_file, "{}\t\t", wi.word)?;
         return Err(anyhow::anyhow!("No pronunciation found"));
     };
