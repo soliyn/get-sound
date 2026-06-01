@@ -1,4 +1,4 @@
-use std::io::{Read, Write};
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::Path;
 use std::{
     fs::{File, OpenOptions},
@@ -29,11 +29,13 @@ impl App {
             .output_csv_file
             .clone()
             .unwrap_or_else(|| args.input_csv_file.with_file_name("output.csv"));
-        let output_file = OpenOptions::new()
+        let mut output_file = OpenOptions::new()
+            .read(true)
             .create(true)
             .append(true)
             .open(&output_csv_file)
             .unwrap();
+        output_file.rewind().unwrap();
         let dict = CambridgeDictionary::new(DEFAULT_BASE_URL.to_string());
         let http_helper = HttpHelper::new();
 
