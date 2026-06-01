@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{num::NonZeroUsize, path::PathBuf};
 
 use clap::Parser;
 
@@ -9,6 +9,7 @@ const DEFAULT_MEDIA_DIR: &str = "c:\\temp\\aaa\\";
 #[derive(Parser, Debug)]
 #[command(version, about = "Pronunciation downloader from Cambridge dictionary")]
 pub struct Args {
+    /// Path to the input CSV (TSV) file.
     #[arg(
             short,
             long,
@@ -17,18 +18,22 @@ pub struct Args {
         )]
     pub input_csv_file: PathBuf,
 
+    /// Path to the output CSV file.
     #[arg(short, long, value_name = "OUTPUT_FILE")]
     pub output_csv_file: Option<PathBuf>,
 
     #[arg(default_value = DEFAULT_MEDIA_DIR, value_name = "MEDIA_DIR")]
     pub media_download_dir: PathBuf,
 
-    #[arg(short, long, default_value_t = 0)]
-    pub word_column_index: usize,
+    /// The 1-based index of the column containing the word in the CSV file.
+    #[arg(short, long, default_value_t = NonZeroUsize::MIN)]
+    pub word_column_index: NonZeroUsize,
 
+    /// The language of the words in the CSV file.
     #[arg(short, long, value_enum, default_value_t = Language::English)]
     pub language: Language,
 
+    /// The preferred pronunciation region for the words in the CSV file.
     #[arg(short, long, value_enum, default_value_t = PronunciationRegion::Us)]
     pub preferred_pronunciation: PronunciationRegion,
 }

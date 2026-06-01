@@ -39,7 +39,7 @@ impl App {
 
         App::run_internal(RunInternalParams {
             input_file,
-            word_column_index: args.word_column_index,
+            word_column_index: args.word_column_index.get() - 1, // get zero-based index from 1-based index parameter
             output_file,
             dict,
             language: args.language,
