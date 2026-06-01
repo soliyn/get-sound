@@ -14,7 +14,6 @@ thiserror = "2.0.18"
 anyhow = "1.0.102"
 
 [dev-dependencies]
-mockall = "0.14.0"
 tempfile = "3.27.0"
 mockito = { version = "1.7.2" }
 rstest = "0.26.1"

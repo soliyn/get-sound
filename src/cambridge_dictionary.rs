@@ -88,7 +88,6 @@ impl CambridgeDictionary {
     }
 }
 
-#[cfg_attr(test, mockall::automock)]
 pub trait Dictionary {
     fn get_word(&self, language: Language, word: &str) -> Result<Option<WordInfo>>;
 }

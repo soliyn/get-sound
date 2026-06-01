@@ -1,9 +1,9 @@
-﻿use log::{debug, warn};
+﻿use anyhow::Result;
+use log::{debug, warn};
 use reqwest::StatusCode;
 use reqwest::blocking::Client;
 use reqwest::redirect::Policy;
 use std::io::{Write, copy};
-use anyhow::Result;
 
 pub struct HttpHelper {
     client: Client,
@@ -24,11 +24,10 @@ impl From<reqwest::Error> for DownloadError {
     }
 }
 
-#[cfg_attr(test, mockall::automock)]
 pub trait Downloader {
     fn download_html(&self, url: &str) -> Result<String, DownloadError>;
 
-    fn download_file<W: Write + 'static>(&self, url: &str, dest: &mut W) -> Result<()>;
+    fn download_file<W: Write>(&self, url: &str, dest: &mut W) -> Result<()>;
 }
 
 impl HttpHelper {
